@@ -1,9 +1,0 @@
-n = 100000000 num_rounds = 5
-Total sum: 4999999950000000
-Warmup round running time: 0.034909
-Round 1 running time: 0.030095
-Round 2 running time: 0.030089
-Round 3 running time: 0.030007
-Round 4 running time: 0.030003
-Round 5 running time: 0.03004
-Average running time: 0.0300468
