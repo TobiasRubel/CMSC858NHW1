@@ -1,0 +1,6 @@
+n = 100000000 num_rounds = 3 flag = 0
+Warmup round running time: 18.8021
+Round 1 running time: 18.9703
+Round 2 running time: 19.2883
+Round 3 running time: 18.9458
+Average running time: 19.0681

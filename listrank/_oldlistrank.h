@@ -199,16 +199,11 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 		L[i].rank = i;
 		not_head[i] = false; 
 	}
-	parlay::random_generator gen;
-	std::uniform_int_distribution<> dis(0, n-1);
 	
 	srand (time(NULL));
 	auto gen_sample = [&](size_t i) {
 		// not technically threadsafe, but I don't think it is a huge deal for our purposes...
-		//long rnd = rand() % n;
-	    auto r = gen[i];
-        auto rnd = dis(r);
-
+		long rnd = rand() % n;
 		// sample
 		(rnd < num_samples) ? (in_samp[i] = i) : in_samp[i] = -1;
 		// include the tail and figure out who the head is
@@ -222,6 +217,27 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 	};
 	parallel_for(0,n,include_head);
 	
+	// let's check that this all worked
+	/*	
+	printf("L: ");
+	for (size_t i = 0; i < n; i++) {
+		printf("%zu ", L[i].rank);
+	}
+	printf("\n");
+
+	printf("in_samp: ");
+	for (size_t i = 0; i < n; i++) {
+		printf("%d ", in_samp[i]);
+	}
+	printf("\n");
+
+	printf("not_head: ");
+	for (size_t i = 0; i < n; i++) {
+		printf("%d ", not_head[i]);
+	}
+	printf("\n");
+	*/
+	
 	// now we build a linked list on the sampled nodes. Because we
 	// are indexing in using the ids in L we need to allocate some extra
 	// memory, but that should be okay...
@@ -232,7 +248,7 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 		if (in_samp[i] >= 0) {
 			ListNode *currnode = L[i].next;
 			if (currnode != nullptr) samplist[in_samp[i]].rank++;
-			while (currnode != nullptr && in_samp[currnode->rank] == -1) {
+			while (currnode != nullptr && in_samp[currnode->rank] < 0) {
 				samplist[in_samp[i]].rank++;
 				currnode = currnode->next; 
 			}
@@ -242,6 +258,13 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 
 	parallel_for(0,n,build_list);
 
+	/*
+	printf("samplist: ");
+	for (size_t i = 0; i < m; i++) {
+		printf("%zu ", samplist[i].rank);
+	}
+	printf("\n");
+	*/
 	// now that we have the linked list with the relative ranks, we just need to 
 	// correct the ranks using a serial weighted listrank
 	
@@ -270,17 +293,13 @@ void SamplingBasedListRanking(ListNode* L, size_t n, long num_samples=-1, parlay
 			size_t curr = samplist[in_samp[i]].rank;
 			L[i].rank = curr;	
 			ListNode *currnode = L[i].next;
-			while (currnode != nullptr && in_samp[currnode->rank] == -1) {
+			while (currnode != nullptr && in_samp[currnode->rank] < 0) {
 				L[currnode->rank].rank = --curr;
 				currnode = currnode->next; 
 			}
 		}
 	};
 	parallel_for(0,n,finalize_list);
-
-	free(in_samp);
-	free(not_head);
-	free(samplist);
 	
 
 }

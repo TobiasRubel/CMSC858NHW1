@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     parlay::timer t;
     long long ans = reduce(A, n);
     //long long ans = serial_reduce(A, n);
+    //long long ans = smart_reduce(A, n,10000);
     t.stop();
 
     if (i == 0) {

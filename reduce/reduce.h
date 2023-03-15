@@ -25,3 +25,21 @@ T reduce(T *A, size_t n) {
     return v1 + v2;
   }
 }
+
+template <class T>
+T smart_reduce(T *A, size_t n, size_t g) {
+  if (n <= g) { 
+    T tot = 0;
+    for (size_t i = 0; i<n; ++i) {
+       tot+= A[i];
+    }
+    return tot;
+  }
+  else {
+    T v1, v2;
+    auto f1 = [&]() { v1 = smart_reduce(A, n / 2, g); };
+    auto f2 = [&]() { v2 = smart_reduce(A + n / 2, n - n / 2, g); };
+    par_do(f1, f2);
+    return v1 + v2;
+  }
+}

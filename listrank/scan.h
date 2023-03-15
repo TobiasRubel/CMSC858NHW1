@@ -12,7 +12,8 @@ template <class T, class F>
 T scan_inplace_serial(T *A, size_t n, const F& f, T id) {
   T cur = id;
   for (size_t i=0; i<n; ++i) {
-    T next = f(cur, A[i]);
+	T m = std::max(A[i],id);
+    T next = f(cur, m);
     A[i] = cur;
     cur = next;
   }
@@ -28,7 +29,7 @@ T scan_inplace_serial(T *A, size_t n, const F& f, T id) {
 
 template <class T, class F>
 T scan_up(T *A, size_t n, T *L, const F& f) {
-	if (n == 1) return A[0];
+	if (n == 1) return std::max(A[0],0);
 	auto mc = n/2 + (n % 2 != 0);
 	//printf("mc: %zu\n", mc);
 	T l, r;
@@ -63,20 +64,7 @@ T scan_inplace(T *A, size_t n, const F& f, T id) {
 	//printf("\n");	
 	T* L = (T*)malloc((n-1) * sizeof(T));
 	size_t total = scan_up(A,n,L,f);
-	if (debug) {
-
-
-		for (size_t i = 0; i < n-1; i++){
-			printf("%llu ",L[i]);
-		}
-		printf("\n");
-	}
 	scan_down(A,n,L,f,id);
-	if (debug){ 
-			for (size_t i = 0; i < n; i++){
-				printf("%llu ",A[i]);
-			}
-	}
 	free(L);
 	return total;  
 }
